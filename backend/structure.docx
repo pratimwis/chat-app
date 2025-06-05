@@ -1,0 +1,11 @@
+database Schema -{
+    users:{
+        email,fullName,password,profilePic 
+    }
+    messages:{
+        senderId,receiverId,text,image
+    }
+}
+
+
+created At,updatedAt,_id - already have by mongodb
