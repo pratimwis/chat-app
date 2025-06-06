@@ -8,5 +8,13 @@ export interface UserType {
   updatedAt?: Date;
 }
 
+export type AuthImagePatternProps = {
+  title: string;
+  subtitle: string;
+};
 
-
+export type SignUpFormData = {
+  fullName: string;
+  email: string;
+  password: string;
+};

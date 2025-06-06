@@ -31,7 +31,7 @@ const App = () => {
     );
 
   return (
-    <div className="min-h-screen bg-red-200 text-gray-900">
+    <div className="">
       <Navbar />
 
       <Routes>
@@ -40,6 +40,10 @@ const App = () => {
         <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+        <Route
+          path="*"
+          element={<Navigate to={authUser ? "/" : "/login"} replace />}
+        />
       </Routes>
 
       <Toaster />
