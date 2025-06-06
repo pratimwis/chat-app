@@ -1,10 +1,11 @@
 import express, { Request, Response ,NextFunction} from 'express';
 import dotenv from 'dotenv';
-import testRouter from './routes/test.route';
+import cors from 'cors';
 import connectToDatabase from './config/db';
 import authRouter from './routes/auth.route';
 import AppError from "./utils/appError"; 
 import cookieparser from 'cookie-parser';
+import messageRouter from './routes/message.route';
 dotenv.config();
 
 
@@ -14,12 +15,11 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cookieparser());
-app.use('/test',testRouter)
+app.use(cors());
 
 
 app.use('/api/auth',authRouter)
-
-
+app.use('/api/message',messageRouter);
 
 
 // Global error handler

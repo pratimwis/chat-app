@@ -1,23 +1,27 @@
 import mongoose from "mongoose";
-import { text } from "stream/consumers";
 
-const messageSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema(
+  {
     serderId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     receiverId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     text: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     image: {
-        type: String,
-        default: "",    
+      type: String,
+      default: "",
     },
-},{timestamps: true});
+  },
+  { timestamps: true }
+);
+const Message = mongoose.model("Message", messageSchema);
+export default Message;
