@@ -1,11 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User } from "lucide-react";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
-  const [selectedImg, setSelectedImg] = useState(null);
-  console.log("needed", authUser)
+  const [selectedImg, setSelectedImg] = useState<string|ArrayBuffer|null>(null);
+  
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -17,7 +17,7 @@ const ProfilePage = () => {
     reader.onload = async () => {
       const base64Image = reader.result;
       setSelectedImg(base64Image);
-      await updateProfile({ profilePic: base64Image });
+      await updateProfile({ profilePicture: base64Image as string});
     };
   };
 
@@ -35,7 +35,7 @@ const ProfilePage = () => {
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <img
-                src={selectedImg || authUser?.profilePic || "/avatar.png"}
+                src={selectedImg || authUser?.profilePicture || "/avatar.png"}
                 alt="Profile"
                 className="size-32 rounded-full object-cover border-4 "
               />
@@ -60,26 +60,26 @@ const ProfilePage = () => {
                 />
               </label>
             </div>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm">
               {isUpdatingProfile ? "Uploading..." : "Click the camera icon to update your photo"}
             </p>
           </div>
 
           <div className="space-y-6 px-4">
             <div className="space-y-1.5">
-              <div className="text-sm text-zinc-400 flex items-center gap-2">
+              <div className="text-sm flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Full Name
               </div>
-              <p className="px-4 py-3 bg-base-200 rounded-lg border text-white">{authUser?.user?.fullName}</p>
+              <p className="px-4 py-3 bg-base-200 rounded-lg border ">{authUser?.fullName}</p>
             </div>
 
             <div className="space-y-1.5">
-              <div className="text-sm text-zinc-400 flex items-center gap-2">
+              <div className="text-sm flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 Email Address
               </div>
-              <p className="px-4 py-3 bg-base-200 rounded-lg border">{authUser?.user?.email}</p>
+              <p className="px-4 py-3 bg-base-200 rounded-lg border">{authUser?.email}</p>
             </div>
           </div>
 
@@ -88,7 +88,8 @@ const ProfilePage = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member Since</span>
-                <span>{authUser?.user?.createdAt?.split("T")[0]}</span>              </div>
+                <span>{authUser?.createdAt?.split("T")[0]}</span>            
+              </div>
               <div className="flex items-center justify-between py-2">
                 <span>Account Status</span>
                 <span className="text-green-500">Active</span>

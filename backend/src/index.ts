@@ -6,22 +6,21 @@ import authRouter from './routes/auth.route';
 import AppError from "./utils/appError"; 
 import cookieparser from 'cookie-parser';
 import messageRouter from './routes/message.route';
+import { io,app,server } from './lib/socket';
 dotenv.config();
 
-
-const app = express();
 const PORT = process.env.PORT;
 
-
-app.use(express.json());
-app.use(cookieparser());
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true               
 }));
 
+app.use(express.json({ limit: '10mb' }));
+app.use(cookieparser());
+
 app.use('/api/auth',authRouter)
-app.use('/api/message',messageRouter);
+app.use('/api/chat',messageRouter);
 
 
 // Global error handler
@@ -35,6 +34,7 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
     });
     return;
   }
+  console.log(`Error: ${err}`);
   res.status(500).json({
     success: false,
     message: "Internal Server Error",
@@ -47,7 +47,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello, TypeScript with Express!');
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   connectToDatabase();
   console.log(`Server is running at http://localhost:${PORT}`);
 });

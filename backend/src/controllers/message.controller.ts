@@ -63,9 +63,9 @@ export const sendMessage = catchErrors(async (req: Request, res: Response) => {
   }
 
   const newMessage = new Message({
-    senderId,
+    senderId:senderId,
     receiverId,
-    text,
+    text:text,
     image: imageUrl,
   });
 
