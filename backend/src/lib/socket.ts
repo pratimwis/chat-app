@@ -1,21 +1,39 @@
-import { Server } from "socket.io";
-import { createServer } from "http";
-import express from "express";
+import { Server as SocketIOServer } from "socket.io";
+import type { Server as HTTPServer } from "http";
 
-const app = express();
-const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: ["http://localhost:5173"],
-  },
-});
+export let io: SocketIOServer;
 
-io.on("connection", (socket) => {
-  console.log("A user connected",socket.id);
+//use to store online users
+const userSocketMap: Record<string, string> = {}; //{userId: socketId}
 
-  socket.on("disconnect", () => {
-    console.log("A user disconnected",socket.id);
+//helper function to get socket id by userId
+export function getSocketIdByUserId(userId: string): string | undefined {
+  return userSocketMap[userId];
+}
+
+export function registerSocket(server: HTTPServer) {
+  io = new SocketIOServer(server, {
+    cors: {
+      origin: "http://localhost:5173",
+      credentials: true,
+    },
   });
 
-});
-export { io, app, server };
+  io.on("connection", (socket) => {
+    console.log("A user connected", socket.id);
+    const userId = socket.handshake.query.userId as string;
+    if (userId) {
+      userSocketMap[userId] = socket.id;
+    }
+    // Emit the current online users
+    io.emit("onlineUsers", Object.keys(userSocketMap));
+
+    socket.on("disconnect", () => {
+      console.log("A user disconnected", socket.id);
+
+      // Remove the user from the online users list
+      delete userSocketMap[userId];
+      io.emit("onlineUsers", Object.keys(userSocketMap));
+    });
+  });
+}

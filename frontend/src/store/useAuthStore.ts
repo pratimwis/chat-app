@@ -3,16 +3,17 @@ import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import type { UserType, SignUpFormData } from "../lib/types";
 import { io } from "socket.io-client";
-const API_URL = import.meta.env.VITE_API_BASE_URL;
+const API_URL = import.meta.env.VITE_WEBSOCKET_URL;
 
 type AuthStore = {
   authUser: UserType | null;
-  checkAuth: () => Promise<void>;
   isCheckingAuth: boolean;
   isSigningUp: boolean;
   isLoggingIn: boolean;
   isUpdatingProfile: boolean;
+  onlineUsers: string[]; 
   socket: any;
+  checkAuth: () => Promise<void>;
   signup: (data: SignUpFormData) => Promise<void>;
   logout: () => Promise<void>;
   login: (data: { email: string; password: string }) => Promise<void>;
@@ -97,13 +98,35 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   },
 
   connectSocket: async () => {
-    const {authUser} = get();
-    if (!authUser || get().socket.connected) {
+    const { authUser } = get();
+    if (!authUser || get().socket?.connected) {
       console.warn("Cannot connect socket, no authenticated user found.");
       return;
     }
-    const socket = io(API_URL);
+
+    //connect socked and pass userId as query parameter
+    const socket = io(API_URL,{
+      query:{
+        userId:authUser._id
+      }
+    });
     socket.connect();
+    set({ socket: socket });
+
+    // Listen for online users
+    socket.on("onlineUsers", (userIds: string[]) => {
+      console.log("Online users:", userIds);
+      set({ onlineUsers: userIds });
+    }
+    );
   },
-  disconnectSocket: async() => {},
+
+  disconnectSocket: async () => {
+    const { socket } = get();
+    if (socket?.connected) {
+      socket.disconnect();
+      set({ socket: null });
+      console.log("Socket disconnected");
+    }
+  },
 }));

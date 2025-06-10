@@ -6,6 +6,7 @@ import { catchErrors } from "../utils/catchErrors";
 import { BAD_REQUEST, CREATED, OK } from "../constant/http";
 import appAssert from "../utils/appAssert";
 import AppErrorCode from "../constant/appErrorCode";
+import { getSocketIdByUserId, io, registerSocket } from "../lib/socket";
 
 export const getUsersForSidebar = catchErrors(
   async (req: Request, res: Response) => {
@@ -71,5 +72,9 @@ export const sendMessage = catchErrors(async (req: Request, res: Response) => {
 
   await newMessage.save();
 
+  // Emit the new message to the receiver's socket
+  const receiverSocketId = getSocketIdByUserId(receiverId);
+  console.log("Receiver Socket ID:", receiverSocketId);
+  io.to(receiverSocketId as string).emit("newMessage", newMessage);
   res.status(CREATED).json(newMessage);
 });
