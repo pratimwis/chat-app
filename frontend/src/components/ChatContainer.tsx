@@ -6,7 +6,6 @@ import Chatheader from "./Chatheader";
 import MessageInput from "./MessageInput";
 import { formatMessageTime } from "../lib/formatDate";
 import { X } from "lucide-react";
-import { useThemesStore } from "../store/useThemesStore";
 
 const ChatContainer = () => {
   const {
@@ -17,20 +16,21 @@ const ChatContainer = () => {
     subscribeToMessages,
     unsubscribeFromMessages,
   } = useChatStore();
-  const { theme } = useThemesStore();
   const { authUser } = useAuthStore();
-  const messageEndRef = useRef(null);
+  const messageEndRef = useRef<HTMLDivElement | null>(null);
 
   // State for modal
   const [modalImage, setModalImage] = useState<string | null>(null);
 
   useEffect(() => {
-    getMessages(selectedUser._id);
-    subscribeToMessages();
-    return () => {
-      unsubscribeFromMessages();
-    };
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+    if (selectedUser?._id) {
+      getMessages(selectedUser._id);
+      subscribeToMessages();
+      return () => {
+        unsubscribeFromMessages();
+      };
+    }
+  }, [selectedUser?._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
   // Scroll to the bottom when messages change
   useEffect(() => {
@@ -54,14 +54,14 @@ const ChatContainer = () => {
         {messages.map((message) => (
           <div
             key={message._id}
-            className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+            className={`chat ${message.senderId === authUser?._id ? "chat-end" : "chat-start"}`}
             ref={messageEndRef}
           >
             <div className=" chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={
-                    message.senderId === authUser._id
+                    message.senderId === authUser?._id
                       ? authUser?.profilePicture || "/avatar.png"
                       : selectedUser?.profilePicture || "/avatar.png"
                   }

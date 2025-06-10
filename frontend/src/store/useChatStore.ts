@@ -2,8 +2,23 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
+import type { UserType, MessageType } from "../lib/types";
 
-export const useChatStore = create((set, get) => ({
+type ChatStore = {
+  messages: MessageType[];
+  users: UserType[];
+  selectedUser: UserType | null;
+  isUsersLoading: boolean;
+  isMessagesLoading: boolean;
+  setSelectedUser: (user: UserType|null) => void;
+  getUsersForSidebar: () => Promise<void>;
+  getMessages: (userId: string) => Promise<void>;
+  sendMessage: (messageData: { content: string }) => Promise<void>;
+  subscribeToMessages: () => void;
+  unsubscribeFromMessages: () => void;
+};
+
+export const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],
   users: [],
   selectedUser: null,
@@ -40,11 +55,12 @@ export const useChatStore = create((set, get) => ({
     const { selectedUser, messages } = get();
     try {
       const res = await axiosInstance.post(
-        `/chat/send/${selectedUser._id}`,
+        `/chat/send/${selectedUser?._id}`,
         messageData
       );
       set({ messages: [...messages, res.data] });
-    } catch (error) {
+      get().getUsersForSidebar();
+    } catch (error: any) {
       toast.error(error.response.data.message);
     }
   },
@@ -55,8 +71,9 @@ export const useChatStore = create((set, get) => ({
 
     const socket = useAuthStore.getState().socket;
 
-    socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+    socket.on("newMessage", (newMessage: MessageType) => {
+      const isMessageSentFromSelectedUser =
+        newMessage.senderId === selectedUser._id;
       if (!isMessageSentFromSelectedUser) return;
 
       set({
@@ -64,12 +81,8 @@ export const useChatStore = create((set, get) => ({
       });
     });
   },
-  unsubscribeFromMessages: async() => {
+  unsubscribeFromMessages: async () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
   },
-
-
-
-
 }));
