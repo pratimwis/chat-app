@@ -14,7 +14,7 @@ export function getSocketIdByUserId(userId: string): string | undefined {
 export function registerSocket(server: HTTPServer) {
   io = new SocketIOServer(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: `${process.env.CLIENT_URL}`,
       credentials: true,
     },
   });

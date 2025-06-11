@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User } from "lucide-react";
 
 const ProfilePage = () => {
   const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
-  const [selectedImg, setSelectedImg] = useState<string|ArrayBuffer|null>(null);
-  
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+  const [selectedImg, setSelectedImg] = useState<string | null>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
@@ -15,9 +15,9 @@ const ProfilePage = () => {
     reader.readAsDataURL(file);
 
     reader.onload = async () => {
-      const base64Image = reader.result;
+      const base64Image = reader.result as string;
       setSelectedImg(base64Image);
-      await updateProfile({ profilePicture: base64Image as string});
+      await updateProfile({ profilePicture: base64Image as string });
     };
   };
 
@@ -88,7 +88,12 @@ const ProfilePage = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member Since</span>
-                <span>{authUser?.createdAt?.split("T")[0]}</span>            
+                <span>{authUser?.createdAt
+                  ? (typeof authUser.createdAt === "string"
+                    ? authUser.createdAt
+                    : authUser.createdAt.toISOString()
+                  ).split("T")[0]
+                  : ""}</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span>Account Status</span>
