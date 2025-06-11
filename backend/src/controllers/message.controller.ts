@@ -7,15 +7,36 @@ import { BAD_REQUEST, CREATED, OK } from "../constant/http";
 import appAssert from "../utils/appAssert";
 import AppErrorCode from "../constant/appErrorCode";
 import { getSocketIdByUserId, io, registerSocket } from "../lib/socket";
+import mongoose from "mongoose";
 
 export const getUsersForSidebar = catchErrors(
   async (req: Request, res: Response) => {
     const loggedInUserId = req.user._id;
 
-    // Aggregate users with their latest message with the logged-in user
+    // 1. Find all messages involving the logged-in user
+    const messages = await Message.find({
+      $or: [
+        { senderId: loggedInUserId },
+        { receiverId: loggedInUserId },
+      ],
+    }).sort({ createdAt: -1 });
+
+    // 2. Get unique user IDs who have chatted with the logged-in user
+    const userIdsSet = new Set<string>();
+    messages.forEach(msg => {
+      if (msg.senderId.toString() !== loggedInUserId.toString()) {
+        userIdsSet.add(msg.senderId.toString());
+      }
+      if (msg.receiverId.toString() !== loggedInUserId.toString()) {
+        userIdsSet.add(msg.receiverId.toString());
+      }
+    });
+    const userIds = Array.from(userIdsSet);
+
+    // 3. Aggregate users with their last message
     const users = await User.aggregate([
       {
-        $match: { _id: { $ne: loggedInUserId } },
+        $match: { _id: { $in: userIds.map(id => new mongoose.Types.ObjectId(id)) } },
       },
       {
         $lookup: {
@@ -60,10 +81,11 @@ export const getUsersForSidebar = catchErrors(
       },
       {
         $project: {
-          password: 0, // Exclude password
+          password: 0,
         },
       },
     ]);
+
     res.status(OK).json(users);
   }
 );
@@ -118,6 +140,11 @@ export const sendMessage = catchErrors(async (req: Request, res: Response) => {
     text: text,
     image: imageUrl,
   });
+
+  //Last massage save of each user
+
+  // const senderUser = await User.findOne(senderId);
+  // const receiverUser = await User.findOne(receiverId);
 
   await newMessage.save();
 

@@ -25,6 +25,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // lastMessage:{
+    //   type:mongoose.Schema.Types.ObjectId,
+    //   ref:"Message",
+    //   defailt:"No massage Found"
+    // }
   },
   { timestamps: true }
 );

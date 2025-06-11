@@ -5,6 +5,7 @@ export interface UserType {
   fullName: string;
   password: string;
   profilePicture?: string;
+  lastMessage?:MessageType;
   createdAt?: Date;
   updatedAt?: Date;
 };

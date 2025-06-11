@@ -10,7 +10,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
 
-import { Loader, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import { useThemesStore } from "./store/useThemesStore";
 
@@ -31,7 +31,7 @@ const App = () => {
     );
 
   return (
-    <div data-theme = {theme}>
+    <div data-theme = {theme} className="bg-primary">
       <Navbar />
 
       <Routes>

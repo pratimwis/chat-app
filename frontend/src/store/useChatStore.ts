@@ -13,7 +13,7 @@ type ChatStore = {
   setSelectedUser: (user: UserType|null) => void;
   getUsersForSidebar: () => Promise<void>;
   getMessages: (userId: string) => Promise<void>;
-  sendMessage: (messageData: { content: string }) => Promise<void>;
+  sendMessage: (messageData: { text: string ,image:string | null}) => Promise<void>;
   subscribeToMessages: () => void;
   unsubscribeFromMessages: () => void;
 };
