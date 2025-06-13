@@ -9,21 +9,25 @@ import AppErrorCode from "../constant/appErrorCode";
 import { getSocketIdByUserId, io, registerSocket } from "../lib/socket";
 import mongoose from "mongoose";
 
+export const getAllUsers = catchErrors(async (req: Request, res: Response) => {
+  const users = await User.find().select(
+    "_id fullName profilePicture"
+  );
+  res.status(OK).json({ users });
+});
+
 export const getUsersForSidebar = catchErrors(
   async (req: Request, res: Response) => {
     const loggedInUserId = req.user?._id;
 
     // 1. Find all messages involving the logged-in user
     const messages = await Message.find({
-      $or: [
-        { senderId: loggedInUserId },
-        { receiverId: loggedInUserId },
-      ],
+      $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
     }).sort({ createdAt: -1 });
 
     // 2. Get unique user IDs who have chatted with the logged-in user
     const userIdsSet = new Set<string>();
-    messages.forEach(msg => {
+    messages.forEach((msg) => {
       if (msg.senderId.toString() !== loggedInUserId?.toString()) {
         userIdsSet.add(msg.senderId.toString());
       }
@@ -36,7 +40,9 @@ export const getUsersForSidebar = catchErrors(
     // 3. Aggregate users with their last message
     const users = await User.aggregate([
       {
-        $match: { _id: { $in: userIds.map(id => new mongoose.Types.ObjectId(id)) } },
+        $match: {
+          _id: { $in: userIds.map((id) => new mongoose.Types.ObjectId(id)) },
+        },
       },
       {
         $lookup: {

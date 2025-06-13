@@ -10,12 +10,15 @@ type ChatStore = {
   selectedUser: UserType | null;
   isUsersLoading: boolean;
   isMessagesLoading: boolean;
+  isSearchingUsers: boolean;
+  allUsers: UserType[];
   setSelectedUser: (user: UserType|null) => void;
   getUsersForSidebar: () => Promise<void>;
   getMessages: (userId: string) => Promise<void>;
   sendMessage: (messageData: { text: string ,image:string | null}) => Promise<void>;
   subscribeToMessages: () => void;
   unsubscribeFromMessages: () => void;
+  getAllUsers : () => Promise<void>;
 };
 
 export const useChatStore = create<ChatStore>((set, get) => ({
@@ -24,6 +27,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
+  isSearchingUsers: false,
+  allUsers:[],
 
   setSelectedUser: (user) => {
     set({ selectedUser: user });
@@ -38,6 +43,18 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       toast.error("Failed to fetch all users.");
     } finally {
       set({ isUsersLoading: false });
+    }
+  },
+
+  getAllUsers: async () => {
+    set({ isSearchingUsers: true });
+    try {
+      const response = await axiosInstance.get(`/chat/all-users`);
+      set({ allUsers: response.data });
+    } catch (error) {
+      toast.error("Failed to fetch users.");
+    } finally {
+      set({ isSearchingUsers: false });
     }
   },
   getMessages: async (userId) => {

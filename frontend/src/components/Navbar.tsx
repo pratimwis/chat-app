@@ -21,7 +21,7 @@ const Navbar = () => {
                 <MessageSquare className="w-5 h-5 text-primary transition-transform duration-200 group-hover:scale-110" />
               </div>
               <div className="flex flex-col leading-tight">
-                <h1 className="text-lg font-semibold">Chat App</h1>
+                <h1 className="text-lg font-semibold">WIS Chat</h1>
                 <p className="text-sm text-gray-500 group-hover:text-gray-600 pl-4">
                   powered by wis-rana
                 </p>
