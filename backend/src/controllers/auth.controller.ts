@@ -90,7 +90,7 @@ export const updateProfileController = catchErrors(async (req, res) => {
     AppErrorCode.UploadFailed
   );
 
-  const userId = req.user._id;
+  const userId = req.user?._id;
   const user = await User.findByIdAndUpdate(
     userId,
     { profilePicture: uploadedResponse.secure_url },

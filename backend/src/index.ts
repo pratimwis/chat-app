@@ -9,10 +9,10 @@ import messageRouter from "./routes/message.route";
 import http from "http";
 import { registerSocket } from "./lib/socket";
 import path from 'path';
+
 dotenv.config();
 
 const PORT = process.env.PORT || 8000;
-
 
 const app = express();
 const server = http.createServer(app);
@@ -53,16 +53,13 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
 });
 
 if(process.env.NODE_ENV === "production"){
-  app.use(express.static(path.join(__dirname,"../frontend/dist")));
+  app.use(express.static(path.join(__dirname,"../../frontend/dist")));
   app.get("*",(req,res)=>{
-    res.sendFile(path.join(__dirname,"../frontend","dist","index.html"))
+    res.sendFile(path.join(__dirname,"../../frontend","dist","index.html"))
   })
 }
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, TypeScript with Express!");
-});
 
 server.listen(PORT, () => {
   connectToDatabase();
-  console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Server is running at port ${PORT}`);
 });

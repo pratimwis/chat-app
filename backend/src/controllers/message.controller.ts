@@ -11,7 +11,7 @@ import mongoose from "mongoose";
 
 export const getUsersForSidebar = catchErrors(
   async (req: Request, res: Response) => {
-    const loggedInUserId = req.user._id;
+    const loggedInUserId = req.user?._id;
 
     // 1. Find all messages involving the logged-in user
     const messages = await Message.find({
@@ -24,10 +24,10 @@ export const getUsersForSidebar = catchErrors(
     // 2. Get unique user IDs who have chatted with the logged-in user
     const userIdsSet = new Set<string>();
     messages.forEach(msg => {
-      if (msg.senderId.toString() !== loggedInUserId.toString()) {
+      if (msg.senderId.toString() !== loggedInUserId?.toString()) {
         userIdsSet.add(msg.senderId.toString());
       }
-      if (msg.receiverId.toString() !== loggedInUserId.toString()) {
+      if (msg.receiverId.toString() !== loggedInUserId?.toString()) {
         userIdsSet.add(msg.receiverId.toString());
       }
     });
@@ -98,7 +98,7 @@ export const getMessages = catchErrors(async (req: Request, res: Response) => {
     "User ID to chat with is required",
     AppErrorCode.MissingField
   );
-  const myId = req.user._id;
+  const myId = req.user?._id;
 
   const messages = await Message.find({
     $or: [
@@ -125,7 +125,7 @@ export const sendMessage = catchErrors(async (req: Request, res: Response) => {
     "Receiver ID is required",
     AppErrorCode.MissingField
   );
-  const senderId = req.user._id;
+  const senderId = req.user?._id;
 
   let imageUrl;
   if (image) {
