@@ -8,7 +8,7 @@ import cookieparser from "cookie-parser";
 import messageRouter from "./routes/message.route";
 import http from "http";
 import { registerSocket } from "./lib/socket";
-import path from 'path';
+import path from "path";
 
 dotenv.config();
 
@@ -52,12 +52,23 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-if(process.env.NODE_ENV === "production"){
-  app.use(express.static(path.join(__dirname,"../../frontend/dist")));
-  app.get("*",(req,res)=>{
-    res.sendFile(path.join(__dirname,"../../frontend","dist","index.html"))
-  })
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../../frontend/dist")));
+  
+  // Handle React routing - use middleware to avoid path-to-regexp issues
+  app.use((req, res, next) => {
+    // Only handle GET requests that haven't been handled by other routes
+    if (req.method === 'GET') {
+      res.sendFile(path.join(__dirname, "../../frontend/dist/index.html"));
+    } else {
+      next();
+    }
+  });
 }
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello, TypeScript with Express!");
+});
 
 server.listen(PORT, () => {
   connectToDatabase();
