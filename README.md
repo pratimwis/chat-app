@@ -1,6 +1,6 @@
 # ✨ Full Stack Realtime Chat App ✨
 
-![Demo App](/frontend/public/Screenshot from 2025-06-11 19-23-25.png)
+![Demo App](frontend/public/Screenshot%20from%202025-06-11%2019-23-25.png)
 
 
 Highlights:
@@ -10,7 +10,7 @@ Highlights:
 - 👾 Real-time messaging with Socket.io
 - 🚀 Online user status
 - 👌 Global state management with Zustand
-- 🐞 Error handling both on the server(App assert , App Error , catch Error) and on the client
+- 🐞 Error handling both on the server(App assert , App Error , catch Error)
 
 
 ### Setup `.env` file
