@@ -10,10 +10,29 @@ import { getSocketIdByUserId, io, registerSocket } from "../lib/socket";
 import mongoose from "mongoose";
 
 export const getAllUsers = catchErrors(async (req: Request, res: Response) => {
-  const users = await User.find().select(
-    "_id fullName profilePicture"
+  const searchQuery = req.query.search as string;
+  appAssert(
+    searchQuery,
+    BAD_REQUEST,
+    "Search query is required",
+    AppErrorCode.MissingField
   );
-  res.status(OK).json({ users });
+
+  const regex = new RegExp(searchQuery, "i");
+
+  const users = await User.find({
+    $and: [
+      {
+        $or: [{ fullName: regex }, { email: regex }],
+      },
+      { _id: { $ne: req.user?._id } },
+    ],
+  })
+    .select("_id fullName profilePicture")
+    .select("-password")
+    .limit(20);
+
+  res.status(200).json(users);
 });
 
 export const getUsersForSidebar = catchErrors(

@@ -10,12 +10,12 @@ const SidebarSkeleton = () => {
     flex flex-col transition-all duration-200"
     >
       {/* Header */}
-      <div className="border-b border-base-300 w-full p-5">
+      {/* <div className="border-b border-base-300 w-full p-5">
         <div className="flex items-center gap-2">
           <Users className="w-6 h-6" />
           <span className="font-medium hidden lg:block">Contacts</span>
         </div>
-      </div>
+      </div> */}
 
       {/* Skeleton Contacts */}
       <div className="overflow-y-auto w-full py-3">

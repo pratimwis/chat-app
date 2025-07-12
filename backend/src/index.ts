@@ -9,6 +9,8 @@ import messageRouter from "./routes/message.route";
 import http from "http";
 import { registerSocket } from "./lib/socket";
 import path from "path";
+import logger from "./utils/logger";
+
 
 dotenv.config();
 
@@ -44,7 +46,7 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
     });
     return;
   }
-  console.log(`Error: ${err}`);
+  logger.error(`Error: ${err}`);
   res.status(500).json({
     success: false,
     message: "Internal Server Error",

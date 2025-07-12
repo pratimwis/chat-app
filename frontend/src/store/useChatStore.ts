@@ -12,13 +12,18 @@ type ChatStore = {
   isMessagesLoading: boolean;
   isSearchingUsers: boolean;
   allUsers: UserType[];
-  setSelectedUser: (user: UserType|null) => void;
+  setSelectedUser: (user: UserType | null) => void;
   getUsersForSidebar: () => Promise<void>;
   getMessages: (userId: string) => Promise<void>;
-  sendMessage: (messageData: { text: string ,image:string | null}) => Promise<void>;
+  sendMessage: (messageData: {
+    text: string;
+    image: string | null;
+  }) => Promise<void>;
   subscribeToMessages: () => void;
   unsubscribeFromMessages: () => void;
-  getAllUsers : () => Promise<void>;
+  getAllUsers: (query: string) => Promise<void>;
+  addUser: boolean;
+  setAddUser: (value: boolean) => void;
 };
 
 export const useChatStore = create<ChatStore>((set, get) => ({
@@ -28,7 +33,12 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   isUsersLoading: false,
   isMessagesLoading: false,
   isSearchingUsers: false,
-  allUsers:[],
+  allUsers: [],
+  addUser: false,
+
+  setAddUser: (value) => {
+    set({ addUser: value });
+  },
 
   setSelectedUser: (user) => {
     set({ selectedUser: user });
@@ -46,10 +56,17 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     }
   },
 
-  getAllUsers: async () => {
+  getAllUsers: async (query) => {
     set({ isSearchingUsers: true });
+    if (query.trim() === "") {
+      set({ allUsers: [] });
+      set({ isSearchingUsers: false });
+      return;
+    }
     try {
-      const response = await axiosInstance.get(`/chat/all-users`);
+      const response = await axiosInstance.get(
+        `/chat/all-users?search=${query}`
+      );
       set({ allUsers: response.data });
     } catch (error) {
       toast.error("Failed to fetch users.");
@@ -76,6 +93,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         messageData
       );
       set({ messages: [...messages, res.data] });
+      get().setAddUser(false);
       get().getUsersForSidebar();
     } catch (error: any) {
       toast.error(error.response.data.message);
